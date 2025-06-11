@@ -4,8 +4,14 @@ import CTA from "@/components/CTA";
 import {recentSessions} from "@/constants";
 import {getAllCompanions, getRecentSessions} from "@/lib/actions/companion.actions";
 import {getSubjectColor} from "@/lib/utils";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 const Page = async () => {
+      const user = await currentUser();
+      
+        if (!user) redirect("/sign-in");
+  
     const companions = await getAllCompanions({ limit: 3 });
     const recentSessionsCompanions = await getRecentSessions(10);
 
@@ -36,4 +42,5 @@ const Page = async () => {
   )
 }
 
-export default Page
+export default Page;
+export const dynamic = "force-dynamic"; // Ensure the page is always fresh
