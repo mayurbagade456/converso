@@ -1,10 +1,9 @@
-"use client"; 
-
-import { removeBookmark, isCompanionBookmarked, addBookmark } from "@/lib/actions/companion.actions";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import Link from "next/link";
+"use client";
+import { removeBookmark } from "@/lib/actions/companion.actions";
+import { addBookmark } from "@/lib/actions/companion.actions";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface CompanionCardProps {
   id: string;
@@ -13,6 +12,7 @@ interface CompanionCardProps {
   subject: string;
   duration: number;
   color: string;
+  bookmarked: boolean;
 }
 
 const CompanionCard = ({
@@ -22,38 +22,16 @@ const CompanionCard = ({
   subject,
   duration,
   color,
+  bookmarked,
 }: CompanionCardProps) => {
-  const [bookmarked, setBookmarked] = useState(false);
   const pathname = usePathname();
-
-  useEffect(() => {
-    const fetchBookmarkStatus = async () => {
-      try {
-        const isBookmarked = await isCompanionBookmarked(id);
-        setBookmarked(isBookmarked);
-      } catch (error) {
-        console.error("Error fetching bookmark status:", error);
-      }
-    };
-
-    fetchBookmarkStatus();
-  }, [id]);
-
   const handleBookmark = async () => {
-    try {
-      if (bookmarked) {
-        await removeBookmark(id, pathname);
-        
-      } else {
-        await addBookmark(id, pathname);
-        
-      }
-      setBookmarked(!bookmarked); // Optimistic UI update
-    } catch (error) {
-      console.error("Error handling bookmark:", error);
+    if (bookmarked) {
+      await removeBookmark(id, pathname);
+    } else {
+      await addBookmark(id, pathname);
     }
   };
-
   return (
     <article className="companion-card" style={{ backgroundColor: color }}>
       <div className="flex justify-between items-center">

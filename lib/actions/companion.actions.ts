@@ -92,7 +92,6 @@ export const getRecentSessions = async (limit = 10) => {
     return uniqueCompanions;
 };
 
-
 export const getUserSessions = async (userId: string, limit = 10) => {
     const supabase = createSupabaseClient();
     const { data, error } = await supabase
@@ -117,7 +116,6 @@ export const getUserSessions = async (userId: string, limit = 10) => {
 
     return uniqueCompanions;
 };
-
 
 export const getUserCompanions = async (userId: string) => {
     const supabase = createSupabaseClient();
@@ -173,6 +171,15 @@ export const addBookmark = async (companionId: string, path: string) => {
   if (error) {
     throw new Error(error.message);
   }
+
+  const { error: companionError } = await supabase
+    .from("companions")
+    .update({ bookmarked: true })
+    .eq("id", companionId);
+
+  if (companionError) {
+    throw new Error(companionError.message);
+  }
   // Revalidate the path to force a re-render of the page
 
   revalidatePath(path);
@@ -191,6 +198,17 @@ export const removeBookmark = async (companionId: string, path: string) => {
   if (error) {
     throw new Error(error.message);
   }
+
+  const { error: companionError } = await supabase
+    .from("companions")
+    .update({ bookmarked: false })
+    .eq("id", companionId);
+
+  if (companionError) {
+    throw new Error(companionError.message);
+  }
+
+
   revalidatePath(path);
   return data;
 };
@@ -208,27 +226,3 @@ export const getBookmarkedCompanions = async (userId: string) => {
   // We don't need the bookmarks data, so we return only the companions
   return data.map(({ companions }) => companions);
 };
-
-
-export const isCompanionBookmarked = async (companionId: string) => {
-  const { userId } = await auth(); // Fetch userId from auth
-  if (!userId) {
-    throw new Error("User is not authenticated");
-  }
-
-  const supabase = createSupabaseClient();
-  const { data, error } = await supabase
-    .from("bookmarks")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("companion_id", companionId)
-    .single(); 
-
-  if (error && error.code !== "PGRST116") {
-    // Ignore "No rows found" error
-    throw new Error(error.message);
-  }
-
-  return !!data; 
-};
-

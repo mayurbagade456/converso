@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const Cta = () => {
+const CTA = () => {
     return (
         <section className="cta-section">
             <div className="cta-badge">Start learning your way.</div>
@@ -19,4 +19,4 @@ const Cta = () => {
         </section>
     )
 }
-export default Cta
+export default CTA
